@@ -72,9 +72,9 @@ namespace Application
                 return Result.Failure(Error.NotFound("", ""));
 
             // به‌روزرسانی مقادیر
-            task.ChangeTitle(task.Title);
-            task.ChangeDueDate(task.DueDate);
-            task.ChangeIsCompleted(task.IsCompleted);
+            task.ChangeTitle(updateTaskDto.Title);
+            task.ChangeDueDate(updateTaskDto.DueDate);
+            task.ChangeIsCompleted(Convert.ToBoolean(updateTaskDto.IsCompleted));
 
             await repository.UpdateAsync(task);
 
