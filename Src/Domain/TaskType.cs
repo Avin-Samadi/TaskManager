@@ -30,7 +30,7 @@ namespace Domain
                 );
             }
 
-            if (ValidateDueDate(dueDate))
+            if (!ValidateDueDate(dueDate))
             {
                 return Result.Failure<TaskType>(
                     Error.Failure("TaskType:CreateTask", "dueDate is invalid")
@@ -45,7 +45,7 @@ namespace Domain
             };
         }
 
-        private static bool ValidateTitle(string title)
+        private static bool ValidateTitle(string? title)
         {
             if (string.IsNullOrWhiteSpace(title))
                 return false;
@@ -61,13 +61,13 @@ namespace Domain
                 return true;
         }
 
-        public Result ChangeTitle(string title)
+        public Result ChangeTitle(string? title)
         {
             if (IsCompleted || !ValidateTitle(title))
                 return Result.Failure(Error.Failure("TaskType:ChangeTitle", "title is invalid"));
             else
             {
-                Title = title;
+                Title = title!;
                 return Result.Success();
             }
         }
