@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 namespace Application.Dtos
 {
     public record UpdateTaskDto(
+        Guid TaskId,
         string? Title,
         string? Description,
         string IsCompleted,
