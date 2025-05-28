@@ -15,7 +15,8 @@ namespace Domain.Contracts
         Task InsertAsync(TEntity entity);
         Task UpdateAsync(TEntity entity);
         Task DeleteAsync(TEntity entity);
-        Task<TEntity> GetByIdAsync(TId id);
+        Task<TEntity?> GetByIdAsync(TId id);
+        Task<IEnumerable<TEntity>> GetAllAsync();
 
         Task<IReadOnlyList<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate);
         Task<IReadOnlyList<TEntity>> SearchAsync(SearchData searchData);
