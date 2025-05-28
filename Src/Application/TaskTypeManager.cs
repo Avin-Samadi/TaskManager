@@ -4,36 +4,81 @@ using System.Linq;
 using System.Threading.Tasks;
 using Application.Contracts;
 using Application.Dtos;
+using Domain;
+using Domain.Contracts;
 using Domain.Contracts.Data;
 using Domain.ResultPattern;
+using Mapster;
 
 namespace Application
 {
-    public class TaskTypeManager : ITaskTypeManager 
+    public class TaskTypeManager(ITaskTypeRepository repository, IIdGenerator<Guid> idGenerator)
+        : ITaskTypeManager
     {
-        public Task<Result<Guid>> CreateTaskAsync(CreateTaskDto createTaskDto)
+        public async Task<Result<Guid>> CreateTaskAsync(CreateTaskDto createTaskDto)
         {
-            throw new NotImplementedException();
+            var tasktId = idGenerator.Next();
+
+            var createResult = TaskType.CreateTask(
+                tasktId,
+                createTaskDto.Title,
+                createTaskDto.DueDate,
+                createTaskDto.Description
+            );
+            if (createResult.IsFailure)
+                return Result.Failure<Guid>(createResult.Error);
+
+            await repository.InsertAsync(createResult.Value);
+
+            return tasktId;
         }
 
-        public Task<Result> DeleteTaskAsync(Guid TaskId)
+        public async Task<Result> DeleteTaskAsync(Guid TaskId)
         {
-            throw new NotImplementedException();
+            var task = await repository.GetByIdAsync(TaskId);
+            if (task == null)
+                return Result.Failure(
+                    Error.NotFound("TaskTypeManager: DeleteTaskAsync", "taskId is not valid")
+                );
+
+            await repository.DeleteAsync(task);
+
+            return Result.Success();
         }
 
-        public Task<Result<GetTaskDto>> GetTaskByIdAsync(Guid TaskId)
+        public async Task<Result<GetTaskDto>> GetTaskByIdAsync(Guid TaskId)
         {
-            throw new NotImplementedException();
+            var task = await repository.GetByIdAsync(TaskId);
+            if (task == null)
+                return Result.Failure<GetTaskDto>(
+                    Error.NotFound("TaskTypeManager: GetTaskByIdAsync", "taskId is not valid")
+                );
+
+            var dto = task.Adapt<GetTaskDto>();
+            return Result.Success(dto);
         }
 
-        public Task<Result<PagedList<TaskDto>>> SearchTaskAsync(SearchTaskDto searchTaskDto)
+        public async Task<Result<List<GetTaskDto>>> GetAllTasksAsync()
         {
-            throw new NotImplementedException();
+            var tasks = await repository.GetAllAsync();
+            var dtos = tasks.Adapt<List<GetTaskDto>>();
+            return Result.Success(dtos);
         }
 
-        public Task<Result> UpdateTaskAsync(UpdateTaskDto updateTaskDto)
+        public async Task<Result> UpdateTaskAsync(UpdateTaskDto updateTaskDto)
         {
-            throw new NotImplementedException();
+            var task = await repository.GetByIdAsync(updateTaskDto.TaskId);
+            if (task == null)
+                return Result.Failure(Error.NotFound("", ""));
+
+            // به‌روزرسانی مقادیر
+            task.ChangeTitle(task.Title);
+            task.ChangeDueDate(task.DueDate);
+            task.ChangeIsCompleted(task.IsCompleted);
+
+            await repository.UpdateAsync(task);
+
+            return Result.Success();
         }
     }
 }

@@ -15,6 +15,6 @@ namespace Application.Contracts
         Task<Result> UpdateTaskAsync(UpdateTaskDto updateTaskDto);
         Task<Result> DeleteTaskAsync(Guid TaskId);
         Task<Result<GetTaskDto>> GetTaskByIdAsync(Guid TaskId);
-        Task<Result<PagedList<TaskDto>>> SearchTaskAsync(SearchTaskDto searchTaskDto);
+        Task<Result<List<GetTaskDto>>> GetAllTasksAsync();
     }
 }
